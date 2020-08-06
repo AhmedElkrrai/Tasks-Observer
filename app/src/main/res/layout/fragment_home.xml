@@ -1,14 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/holo_red_light">
+    android:gravity="center"
+    tools:context=".MainActivity">
 
-    <TextView
+    <LinearLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            style="@style/row_element"
+            android:background="#f1f1f1"
+            android:text="@string/name"
+            android:textStyle="bold" />
+
+        <TextView
+            style="@style/row_element"
+            android:background="#f1f1f1"
+            android:text="@string/pray"
+            android:textStyle="bold" />
+
+        <TextView
+            style="@style/row_element"
+            android:background="#f1f1f1"
+            android:text="@string/push"
+            android:textStyle="bold" />
+
+        <TextView
+            style="@style/row_element"
+            android:background="#f1f1f1"
+            android:text="@string/work"
+            android:textStyle="bold" />
+
+        <TextView
+            style="@style/row_element"
+            android:background="#f1f1f1"
+            android:text="@string/dhikr"
+            android:textStyle="bold" />
+
+        <TextView
+            style="@style/row_element"
+            android:background="#f1f1f1"
+            android:text="@string/quran"
+            android:textStyle="bold" />
+
+        <TextView
+            style="@style/row_element"
+            android:background="#f1f1f1"
+            android:text="@string/score"
+            android:textStyle="bold" />
+
+        <TextView
+            style="@style/row_element"
+            android:background="#f1f1f1"
+            android:text="@string/total"
+            android:textStyle="bold" />
+
+        <TextView
+            style="@style/row_element"
+            android:background="#f1f1f1"
+            android:text="@string/date"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingTop="48dp"
+        tools:listitem="@layout/user_item" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/add_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/home_fragment"
-        android:textSize="30sp"
-        android:layout_centerInParent="true"/>
+        android:layout_gravity="bottom|end"
+        android:layout_margin="32dp"
+        android:src="@drawable/ic_add" />
 
-</RelativeLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

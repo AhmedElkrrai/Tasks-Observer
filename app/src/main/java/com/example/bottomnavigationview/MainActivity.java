@@ -1,6 +1,5 @@
 package com.example.bottomnavigationview;
 
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -38,10 +37,10 @@ public class MainActivity extends AppCompatActivity {
                             selectedFragment = new HomeFragment();
                             break;
                         case R.id.nav_favorites:
-                            selectedFragment = new FavoritesFragment();
+                            selectedFragment = new HistoryFragment();
                             break;
                         case R.id.nav_search:
-                            selectedFragment = new SearchFragment();
+                            selectedFragment = new NotificationFragment();
                             break;
                     }
 
