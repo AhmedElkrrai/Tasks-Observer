@@ -9,8 +9,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
-import java.util.ArrayList;
 import java.util.List;
 
 import static android.content.ContentValues.TAG;
@@ -25,19 +23,17 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserHolder> {
     @NonNull
     @Override
     public UserHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        Log.i(TAG, "onCreateViewHolder: ");
         return new UserHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.user_item, parent, false));
     }
 
     @Override
     public void onBindViewHolder(@NonNull UserHolder holder, int position) {
-        Log.i(TAG, "onCreateViewHolder: 1");
         holder.userName.setText(users.get(position).getUserName());
         holder.pray.setText(users.get(position).getPray());
         holder.pushUps.setText(users.get(position).getPushUps());
         holder.work.setText(users.get(position).getWork());
         holder.dhikr.setText(users.get(position).getDhikr());
-        holder.quran.setText(users.get(position).getQuran());
+        holder.quran.setText(users.get(position).getQu());
         holder.score.setText(users.get(position).getScore());
         holder.totalScore.setText(users.get(position).getTotalScore());
         holder.date.setText(users.get(position).getDate());
@@ -49,7 +45,6 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserHolder> {
     }
 
     public void setList(List<User> usersList) {
-        Log.i(TAG, "onCreateViewHolder: 2 ");
         this.users = usersList;
         notifyDataSetChanged();
     }

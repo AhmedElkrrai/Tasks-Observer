@@ -6,75 +6,275 @@
     android:gravity="center"
     tools:context=".MainActivity">
 
-    <LinearLayout
-        android:id="@+id/header"
+    <TableLayout
+        android:id="@+id/table_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:collapseColumns="8">
 
-        <TextView
-            style="@style/row_element"
-            android:background="#f1f1f1"
-            android:text="@string/name"
-            android:textStyle="bold" />
+        <TableRow>
 
-        <TextView
-            style="@style/row_element"
-            android:background="#f1f1f1"
-            android:text="@string/pray"
-            android:textStyle="bold" />
+            <TextView
+                style="@style/row_element"
+                android:background="#f1f1f1"
+                android:text="@string/name"
+                android:textStyle="bold" />
 
-        <TextView
-            style="@style/row_element"
-            android:background="#f1f1f1"
-            android:text="@string/push"
-            android:textStyle="bold" />
+            <TextView
+                style="@style/row_element"
+                android:background="#f1f1f1"
+                android:text="@string/pray"
+                android:textStyle="bold" />
 
-        <TextView
-            style="@style/row_element"
-            android:background="#f1f1f1"
-            android:text="@string/work"
-            android:textStyle="bold" />
+            <TextView
+                style="@style/row_element"
+                android:background="#f1f1f1"
+                android:text="@string/push"
+                android:textStyle="bold" />
 
-        <TextView
-            style="@style/row_element"
-            android:background="#f1f1f1"
-            android:text="@string/dhikr"
-            android:textStyle="bold" />
+            <TextView
+                style="@style/row_element"
+                android:background="#f1f1f1"
+                android:text="@string/work"
+                android:textStyle="bold" />
 
-        <TextView
-            style="@style/row_element"
-            android:background="#f1f1f1"
-            android:text="@string/quran"
-            android:textStyle="bold" />
+            <TextView
+                style="@style/row_element"
+                android:background="#f1f1f1"
+                android:text="@string/dhikr"
+                android:textStyle="bold" />
 
-        <TextView
-            style="@style/row_element"
-            android:background="#f1f1f1"
-            android:text="@string/score"
-            android:textStyle="bold" />
+            <TextView
+                style="@style/row_element"
+                android:background="#f1f1f1"
+                android:text="@string/quran"
+                android:textStyle="bold" />
 
-        <TextView
-            style="@style/row_element"
-            android:background="#f1f1f1"
-            android:text="@string/total"
-            android:textStyle="bold" />
+            <TextView
+                style="@style/row_element"
+                android:background="#f1f1f1"
+                android:text="@string/score"
+                android:textStyle="bold" />
 
-        <TextView
-            style="@style/row_element"
-            android:background="#f1f1f1"
-            android:text="@string/date"
-            android:textStyle="bold"
-            android:visibility="gone" />
+            <TextView
+                style="@style/row_element"
+                android:background="#f1f1f1"
+                android:text="@string/total"
+                android:textStyle="bold" />
 
-    </LinearLayout>
+            <TextView
+                style="@style/row_element"
+                android:background="#f1f1f1"
+                android:text="@string/date"
+                android:textStyle="bold" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingTop="48dp"
-        tools:listitem="@layout/user_item" />
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                style="@style/row_element"
+                android:text="Elkrrai"
+                tools:ignore="HardcodedText" />
+
+            <EditText
+                android:id="@+id/ekr_pr"
+                style="@style/row_element"
+                android:cursorVisible="false"
+                android:hint="@string/_0"
+                android:inputType="number"
+                android:maxLength="2" />
+
+            <EditText
+                android:id="@+id/ekr_pu"
+                style="@style/row_element"
+                android:cursorVisible="false"
+                android:hint="@string/_0"
+                android:inputType="number"
+                android:maxLength="3" />
+
+            <EditText
+                android:id="@+id/ekr_wo"
+                style="@style/row_element"
+                android:cursorVisible="false"
+                android:hint="@string/_0"
+                android:inputType="number"
+                android:maxLength="1" />
+
+            <EditText
+                android:id="@+id/ekr_dhikr"
+                style="@style/row_element"
+                android:cursorVisible="false"
+                android:hint="@string/_0"
+                android:inputType="number"
+                android:maxLength="4" />
+
+            <EditText
+                android:id="@+id/ekr_qu"
+                style="@style/row_element"
+                android:cursorVisible="false"
+                android:hint="@string/_0"
+                android:inputType="number"
+                android:maxLength="2" />
+
+            <TextView
+                android:id="@+id/elkrrai_score"
+                style="@style/row_element"
+                android:text="0"
+                tools:ignore="HardcodedText" />
+
+            <TextView
+                android:id="@+id/elkrrai_total_score"
+                style="@style/row_element"
+                android:text="0"
+                tools:ignore="HardcodedText" />
+
+            <TextView
+                android:id="@+id/temp_date"
+                style="@style/row_element"
+                android:background="#f1f1f1"
+                android:text="@string/date"
+                android:textStyle="bold" />
+
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                style="@style/row_element"
+                android:text="Saif"
+                tools:ignore="HardcodedText" />
+
+            <EditText
+                android:id="@+id/sa_pr"
+                style="@style/row_element"
+                android:cursorVisible="false"
+                android:hint="@string/_0"
+                android:inputType="number"
+                android:maxLength="2" />
+
+            <EditText
+                android:id="@+id/sa_pu"
+                style="@style/row_element"
+                android:cursorVisible="false"
+                android:hint="@string/_0"
+                android:inputType="number"
+                android:maxLength="3" />
+
+            <EditText
+                android:id="@+id/sa_wo"
+                style="@style/row_element"
+                android:cursorVisible="false"
+                android:hint="@string/_0"
+                android:inputType="number"
+                android:maxLength="1" />
+
+            <EditText
+                android:id="@+id/sa_dhikr"
+                style="@style/row_element"
+                android:cursorVisible="false"
+                android:hint="@string/_0"
+                android:inputType="number"
+                android:maxLength="4" />
+
+            <EditText
+                android:id="@+id/sa_qu"
+                style="@style/row_element"
+                android:cursorVisible="false"
+                android:hint="@string/_0"
+                android:inputType="number"
+                android:maxLength="2" />
+
+            <TextView
+                android:id="@+id/saif_score"
+                style="@style/row_element"
+                android:text="0"
+                tools:ignore="HardcodedText" />
+
+            <TextView
+                android:id="@+id/saif_total_score"
+                style="@style/row_element"
+                android:text="0"
+                tools:ignore="HardcodedText" />
+
+            <TextView
+                android:id="@+id/temp_date_saif"
+                style="@style/row_element"
+                android:background="#f1f1f1"
+                android:text="@string/date"
+                android:textStyle="bold" />
+
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                style="@style/row_element"
+                android:text="Abdo"
+                tools:ignore="HardcodedText" />
+
+            <EditText
+                android:id="@+id/ab_pr"
+                style="@style/row_element"
+                android:cursorVisible="false"
+                android:hint="@string/_0"
+                android:inputType="number"
+                android:maxLength="2" />
+
+            <EditText
+                android:id="@+id/ab_pu"
+                style="@style/row_element"
+                android:cursorVisible="false"
+                android:hint="@string/_0"
+                android:inputType="number"
+                android:maxLength="3" />
+
+            <EditText
+                android:id="@+id/ab_wo"
+                style="@style/row_element"
+                android:cursorVisible="false"
+                android:hint="@string/_0"
+                android:inputType="number"
+                android:maxLength="1" />
+
+            <EditText
+                android:id="@+id/ab_dhikr"
+                style="@style/row_element"
+                android:cursorVisible="false"
+                android:hint="@string/_0"
+                android:inputType="number"
+                android:maxLength="4" />
+
+            <EditText
+                android:id="@+id/ab_qu"
+                style="@style/row_element"
+                android:cursorVisible="false"
+                android:hint="@string/_0"
+                android:inputType="number"
+                android:maxLength="2" />
+
+            <TextView
+                android:id="@+id/abdo_score"
+                style="@style/row_element"
+                android:text="0"
+                tools:ignore="HardcodedText" />
+
+            <TextView
+                android:id="@+id/abdo_total_score"
+                style="@style/row_element"
+                android:text="0"
+                tools:ignore="HardcodedText" />
+
+            <TextView
+                android:id="@+id/temp_date_abdo"
+                style="@style/row_element"
+                android:background="#f1f1f1"
+                android:text="@string/date"
+                android:textStyle="bold" />
+
+        </TableRow>
+
+    </TableLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add_button"
@@ -83,6 +283,5 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="32dp"
         android:src="@drawable/ic_add" />
-
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

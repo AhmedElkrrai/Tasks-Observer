@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "468707375203",
+    "firebase_url": "https://tasks-observer.firebaseio.com",
+    "project_id": "tasks-observer",
+    "storage_bucket": "tasks-observer.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:468707375203:android:17e1f010ae6ad4dff02056",
+        "android_client_info": {
+          "package_name": "com.example.bottomnavigationview"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "468707375203-k2o7qnnvmk1t494cu581krsg1l6dohit.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.bottomnavigationview",
+            "certificate_hash": "84976ef1c38d12f933abe4758604db380586adb5"
+          }
+        },
+        {
+          "client_id": "468707375203-uk8itr5isju04cdcn6eljjk412vgdpt1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWDxOFpwT1fLmvOeKqSvpxhL2RhgbBqBk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "468707375203-uk8itr5isju04cdcn6eljjk412vgdpt1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
