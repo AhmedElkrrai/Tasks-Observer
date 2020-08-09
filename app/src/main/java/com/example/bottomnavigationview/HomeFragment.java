@@ -1,7 +1,6 @@
 package com.example.bottomnavigationview;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +24,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 
 public class HomeFragment extends Fragment {
@@ -116,7 +114,7 @@ public class HomeFragment extends Fragment {
         date = "2020-8-16";
 //        date = getDate();
 
-        switchToUseDataBinding();
+        findAllViews();
 
         FloatingActionButton floatingActionButton = v.findViewById(R.id.add_button);
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
@@ -224,31 +222,40 @@ public class HomeFragment extends Fragment {
         attachDataBaseReadListener(ABDO);
     }
 
-    private void switchToUseDataBinding() {
-        ekr_pray_ET = tableLayout.findViewById(R.id.ekr_pr);
-        ekr_pu_ET = tableLayout.findViewById(R.id.ekr_pu);
-        ekr_work_ET = tableLayout.findViewById(R.id.ekr_wo);
-        ekr_dhikr_ET = tableLayout.findViewById(R.id.ekr_dhikr);
-        ekr_qu_ET = tableLayout.findViewById(R.id.ekr_qu);
-        ekr_score_TV = tableLayout.findViewById(R.id.elkrrai_score);
-        ekr_total_TV = tableLayout.findViewById(R.id.elkrrai_total_score);
+    private void findAllViews() {
+        EditText[] ekrViews = findEditTextViews(R.id.ekr_pr, R.id.ekr_pu, R.id.ekr_wo, R.id.ekr_dhikr, R.id.ekr_qu);
+        TextView[] ekrTextViews = findTextViews(R.id.elkrrai_score, R.id.elkrrai_total_score);
+        ekr_pray_ET = ekrViews[0];
+        ekr_pu_ET = ekrViews[1];
+        ekr_work_ET = ekrViews[2];
+        ekr_dhikr_ET = ekrViews[3];
+        ekr_qu_ET = ekrViews[4];
+        ekr_score_TV = ekrTextViews[0];
+        ekr_total_TV = ekrTextViews[1];
 
-        sa_pray_ET = tableLayout.findViewById(R.id.sa_pr);
-        sa_pu_ET = tableLayout.findViewById(R.id.sa_pu);
-        sa_work_ET = tableLayout.findViewById(R.id.sa_wo);
-        sa_dhikr_ET = tableLayout.findViewById(R.id.sa_dhikr);
-        sa_qu_ET = tableLayout.findViewById(R.id.sa_qu);
-        sa_score_TV = tableLayout.findViewById(R.id.saif_score);
-        sa_total_TV = tableLayout.findViewById(R.id.saif_total_score);
+        EditText[] saViews = findEditTextViews(R.id.sa_pr, R.id.sa_pu, R.id.sa_wo, R.id.sa_dhikr, R.id.sa_qu);
+        TextView[] saTextViews = findTextViews(R.id.saif_score, R.id.saif_total_score);
+        sa_pray_ET = saViews[0];
+        sa_pu_ET = saViews[1];
+        sa_work_ET = saViews[2];
+        sa_dhikr_ET = saViews[3];
+        sa_qu_ET = saViews[4];
+        sa_score_TV = saTextViews[0];
+        sa_total_TV = saTextViews[1];
 
-        ab_pray_ET = tableLayout.findViewById(R.id.ab_pr);
-        ab_pu_ET = tableLayout.findViewById(R.id.ab_pu);
-        ab_work_ET = tableLayout.findViewById(R.id.ab_wo);
-        ab_dhikr_ET = tableLayout.findViewById(R.id.ab_dhikr);
-        ab_qu_ET = tableLayout.findViewById(R.id.ab_qu);
-        ab_score_TV = tableLayout.findViewById(R.id.abdo_score);
-        ab_total_TV = tableLayout.findViewById(R.id.abdo_total_score);
+        EditText[] abViews = findEditTextViews(R.id.ab_pr, R.id.ab_pu, R.id.ab_wo, R.id.ab_dhikr, R.id.ab_qu);
+        TextView[] abTextViews = findTextViews(R.id.abdo_score, R.id.abdo_total_score);
+        ab_pray_ET = abViews[0];
+        ab_pu_ET = abViews[1];
+        ab_work_ET = abViews[2];
+        ab_dhikr_ET = abViews[3];
+        ab_qu_ET = abViews[4];
+        ab_score_TV = abTextViews[0];
+        ab_total_TV = abTextViews[1];
 
+        resetViews(ekr_pray_ET, ekr_pu_ET, ekr_work_ET, ekr_dhikr_ET, ekr_qu_ET);
+        resetViews(sa_pray_ET, sa_pu_ET, sa_work_ET, sa_dhikr_ET, sa_qu_ET);
+        resetViews(ab_pray_ET, ab_pu_ET, ab_work_ET, ab_dhikr_ET, ab_qu_ET);
 
         disableUserViews(ekr_pray_ET, ekr_pu_ET, ekr_work_ET, ekr_dhikr_ET, ekr_qu_ET);
         disableUserViews(sa_pray_ET, sa_pu_ET, sa_work_ET, sa_dhikr_ET, sa_qu_ET);
@@ -290,7 +297,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void updateUser(String USER, EditText usrPrET, EditText usrPuET, EditText usrWoET, EditText usrDhiET, EditText usrQuEt, String usrTot) {
-        String[] views = checkViews(usrPrET, 15, usrPuET, 1000, usrWoET, 9, usrDhiET, 4000, usrQuEt, 40);
+        String[] views = checkViews(usrPrET, 15, usrPuET, 900, usrWoET, 9, usrDhiET, 4000, usrQuEt, 40);
 
         String usrScore = getUserScore(views[0], views[1], views[2], views[3], views[4]);
 
@@ -437,6 +444,26 @@ public class HomeFragment extends Fragment {
         return usrEntry;
     }
 
+    private String getDate() {
+        Instant now = Instant.now();
+        String date_nr = now.toString();
+        return date_nr.substring(0, 4) + "-" + Integer.parseInt(date_nr.substring(5, 7)) + "-" + Integer.parseInt(date_nr.substring(8, 10));
+    }
+
+    private String getMonth() {
+        Instant now = Instant.now();
+        String date_nr = now.toString();
+        String year = date_nr.substring(0, 4);
+        return year + "-" + Integer.parseInt(date_nr.substring(5, 7));
+    }
+
+    private String parseMonth(String date) {
+        String year = date.substring(0, 4);
+        if (date.charAt(6) == '-')
+            return year + "-" + date.charAt(5);
+        else return year + "-" + date.substring(5, 7);
+    }
+
     private void enableUserViews(EditText usr_pr_e, EditText usr_pu_e, EditText usr_wo_e, EditText usr_dh_e, EditText usr_qu_e) {
         enableUserView(usr_pr_e);
         enableUserView(usr_pu_e);
@@ -461,23 +488,48 @@ public class HomeFragment extends Fragment {
         usr_e.setEnabled(false);
     }
 
-    private String getDate() {
-        Instant now = Instant.now();
-        String date_nr = now.toString();
-        return date_nr.substring(0, 4) + "-" + Integer.parseInt(date_nr.substring(5, 7)) + "-" + Integer.parseInt(date_nr.substring(8, 10));
+    private EditText[] findEditTextViews(int usrPrID, int usrPuID, int usrWoID, int usrDhikrID, int usrQuID) {
+        int numOfViews = 7;
+        EditText[] views = new EditText[numOfViews];
+        views[0] = findEditTextView(usrPrID);
+        views[1] = findEditTextView(usrPuID);
+        views[2] = findEditTextView(usrWoID);
+        views[3] = findEditTextView(usrDhikrID);
+        views[4] = findEditTextView(usrQuID);
+        return views;
     }
 
-    private String getMonth() {
-        Instant now = Instant.now();
-        String date_nr = now.toString();
-        String year = date_nr.substring(0, 4);
-        return year + "-" + Integer.parseInt(date_nr.substring(5, 7));
+    private EditText findEditTextView(int viewID) {
+        return tableLayout.findViewById(viewID);
     }
 
-    private String parseMonth(String date) {
-        String year = date.substring(0, 4);
-        if (date.charAt(6) == '-')
-            return year + "-" + date.charAt(5);
-        else return year + "-" + date.substring(5, 7);
+    private TextView[] findTextViews(int usrScoreID, int usrTotalScoreID) {
+        int numberOfViews = 2;
+        TextView[] views = new TextView[numberOfViews];
+        views[0] = findTextView(usrScoreID);
+        views[1] = findTextView(usrTotalScoreID);
+        return views;
     }
+
+    private TextView findTextView(int ID) {
+        return tableLayout.findViewById(ID);
+    }
+
+    private void resetViews(EditText usrPrET, EditText usrPuET, EditText usrWoET, EditText usrDhikrET, EditText usrQuET) {
+        resetView(usrPrET);
+        resetView(usrPuET);
+        resetView(usrWoET);
+        resetView(usrDhikrET);
+        resetView(usrQuET);
+    }
+
+    private void resetView(final EditText view) {
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                view.setText("");
+            }
+        });
+    }
+
 }
