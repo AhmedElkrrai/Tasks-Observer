@@ -1,10 +1,10 @@
 package com.example.bottomnavigationview;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TableLayout;
 import android.widget.TextView;
@@ -12,8 +12,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -28,9 +26,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class HomeFragment extends Fragment {
     private static final String TAG = "HomeFragment";
@@ -61,12 +57,6 @@ public class HomeFragment extends Fragment {
     private TextView ab_score_TV;
     private TextView ab_total_TV;
 
-    private Button ok;
-
-    private String ekrTot;
-    private String saTot;
-    private String abTot;
-
     private String mUsername;
 
     private final String ELKRRAI = "Elkrrai";
@@ -79,6 +69,9 @@ public class HomeFragment extends Fragment {
     //firebase stuff
     private FirebaseDatabase mFireBaseDatabase;
     private DatabaseReference mUsersDatabaseReference;
+    private DatabaseReference mDaysSavedDatabaseReference;
+    private DatabaseReference mUserLastDayLogInDatabaseReference;
+
     private ChildEventListener mChildEventListener;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
@@ -95,6 +88,9 @@ public class HomeFragment extends Fragment {
         mFireBaseDatabase = FirebaseDatabase.getInstance();
         mFirebaseAuth = FirebaseAuth.getInstance();
         mUsersDatabaseReference = mFireBaseDatabase.getReference();
+        mDaysSavedDatabaseReference = mFireBaseDatabase.getReference().child("Days Saved");
+        mUserLastDayLogInDatabaseReference = mFireBaseDatabase.getReference().child("LogIn");
+
 
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -117,53 +113,44 @@ public class HomeFragment extends Fragment {
             }
         };
 
-//        date = "2020_08_10";
-        date = getDate();
-
-        attachDataBaseReadListener();
+        date = "2020-8-16";
+//        date = getDate();
 
         switchToUseDataBinding();
-
-        getTotalScore(ELKRRAI);
-        if (ekrTot == null)
-            ekrTot = "0";
-
-        getTotalScore(SAIF);
-        if (saTot == null)
-            saTot = "0";
-
-        getTotalScore(ABDO);
-        if (abTot == null)
-            abTot = "0";
-
-        //TODO: put those methods in onResume
-        isNewDay(ELKRRAI, ekr_pray_ET, ekr_pu_ET, ekr_work_ET, ekr_dhikr_ET, ekr_qu_ET, ekr_score_TV);
-
-        isNewDay(SAIF, sa_pray_ET, sa_pu_ET, sa_work_ET, sa_dhikr_ET, sa_qu_ET, sa_score_TV);
-
-        isNewDay(ABDO, ab_pray_ET, ab_pu_ET, ab_work_ET, ab_dhikr_ET, ab_qu_ET, ab_score_TV);
-
-
 
         FloatingActionButton floatingActionButton = v.findViewById(R.id.add_button);
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String name = checkName(mUsername);
-                switch (name) {
-                    case ELKRRAI: {
-                        updateUser(ELKRRAI, ekr_pray_ET, ekr_pu_ET, ekr_work_ET, ekr_dhikr_ET, ekr_qu_ET, ekrTot);
-                        break;
+                final String name = checkName(mUsername);
+                mUsersDatabaseReference.child("Users").child(name).child(getMonth())
+                        .child(name + "_" + date).child("totalScore").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        String userTotal = snapshot.getValue(String.class);
+                        switch (name) {
+                            case ELKRRAI: {
+                                updateUser(ELKRRAI, ekr_pray_ET, ekr_pu_ET, ekr_work_ET, ekr_dhikr_ET, ekr_qu_ET, userTotal);
+                                attachDataBaseReadListener(name);
+                                break;
+                            }
+                            case SAIF: {
+                                updateUser(SAIF, sa_pray_ET, sa_pu_ET, sa_work_ET, sa_dhikr_ET, sa_qu_ET, userTotal);
+                                attachDataBaseReadListener(name);
+                                break;
+                            }
+                            case ABDO: {
+                                updateUser(ABDO, ab_pray_ET, ab_pu_ET, ab_work_ET, ab_dhikr_ET, ab_qu_ET, userTotal);
+                                attachDataBaseReadListener(name);
+                                break;
+                            }
+                        }
                     }
-                    case SAIF: {
-                        updateUser(SAIF, sa_pray_ET, sa_pu_ET, sa_work_ET, sa_dhikr_ET, sa_qu_ET, saTot);
-                        break;
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
                     }
-                    case ABDO: {
-                        updateUser(ABDO, ab_pray_ET, ab_pu_ET, ab_work_ET, ab_dhikr_ET, ab_qu_ET, abTot);
-                        break;
-                    }
-                }
+                });
             }
         });
 
@@ -187,41 +174,38 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    private void getTotalScore(final String USER) {
-        mUsersDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+    private void isNewDay() {
+//        mUserLastDayLogInDatabaseReference.child("Today").setValue(date);
+//        mUserLastDayLogInDatabaseReference.child("LastDay").setValue(date);
+        mUserLastDayLogInDatabaseReference.child("Today").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (int i = 1; i <= 30; i++) {
-                    String yesterday = getYesterdayDate(i);
-                    final String PATH = USER + "_" + yesterday;
+                String today = snapshot.getValue(String.class);
+                if (!(today.equals(date))) {
+                    mUserLastDayLogInDatabaseReference.child("LastDay").setValue(today);
+                    mUserLastDayLogInDatabaseReference.child("Today").setValue(date);
 
-                    if (snapshot.hasChild(PATH)) {
-                        mUsersDatabaseReference.child(PATH).addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                User user = snapshot.getValue(User.class);
-                                switch (USER) {
-                                    case ELKRRAI: {
-                                        ekrTot = String.valueOf(Integer.parseInt(user.getTotalScore()) + Integer.parseInt(user.getScore()));
-                                        break;
-                                    }
-                                    case SAIF: {
-                                        saTot = String.valueOf(Integer.parseInt(user.getTotalScore()) + Integer.parseInt(user.getScore()));
-                                        break;
-                                    }
-                                    case ABDO: {
-                                        abTot = String.valueOf(Integer.parseInt(user.getTotalScore()) + Integer.parseInt(user.getScore()));
-                                        break;
-                                    }
-                                }
+                    mDaysSavedDatabaseReference.child(date).setValue(date);
+
+                    String USER;
+                    for (int i = 0; i < 3; i++) {
+                        switch (i) {
+                            case 0: {
+                                USER = ELKRRAI;
+                                isNewDayUTL(USER, today);
+                                break;
                             }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
-
+                            case 1: {
+                                USER = SAIF;
+                                isNewDayUTL(USER, today);
+                                break;
                             }
-                        });
-                        return;
+                            case 2: {
+                                USER = ABDO;
+                                isNewDayUTL(USER, today);
+                                break;
+                            }
+                        }
                     }
                 }
             }
@@ -230,6 +214,45 @@ public class HomeFragment extends Fragment {
             public void onCancelled(@NonNull DatabaseError error) {
             }
         });
+    }
+
+    private void onSignedInInitialized(String userName) {
+        mUsername = userName;
+        isNewDay();
+        attachDataBaseReadListener(ELKRRAI);
+        attachDataBaseReadListener(SAIF);
+        attachDataBaseReadListener(ABDO);
+    }
+
+    private void switchToUseDataBinding() {
+        ekr_pray_ET = tableLayout.findViewById(R.id.ekr_pr);
+        ekr_pu_ET = tableLayout.findViewById(R.id.ekr_pu);
+        ekr_work_ET = tableLayout.findViewById(R.id.ekr_wo);
+        ekr_dhikr_ET = tableLayout.findViewById(R.id.ekr_dhikr);
+        ekr_qu_ET = tableLayout.findViewById(R.id.ekr_qu);
+        ekr_score_TV = tableLayout.findViewById(R.id.elkrrai_score);
+        ekr_total_TV = tableLayout.findViewById(R.id.elkrrai_total_score);
+
+        sa_pray_ET = tableLayout.findViewById(R.id.sa_pr);
+        sa_pu_ET = tableLayout.findViewById(R.id.sa_pu);
+        sa_work_ET = tableLayout.findViewById(R.id.sa_wo);
+        sa_dhikr_ET = tableLayout.findViewById(R.id.sa_dhikr);
+        sa_qu_ET = tableLayout.findViewById(R.id.sa_qu);
+        sa_score_TV = tableLayout.findViewById(R.id.saif_score);
+        sa_total_TV = tableLayout.findViewById(R.id.saif_total_score);
+
+        ab_pray_ET = tableLayout.findViewById(R.id.ab_pr);
+        ab_pu_ET = tableLayout.findViewById(R.id.ab_pu);
+        ab_work_ET = tableLayout.findViewById(R.id.ab_wo);
+        ab_dhikr_ET = tableLayout.findViewById(R.id.ab_dhikr);
+        ab_qu_ET = tableLayout.findViewById(R.id.ab_qu);
+        ab_score_TV = tableLayout.findViewById(R.id.abdo_score);
+        ab_total_TV = tableLayout.findViewById(R.id.abdo_total_score);
+
+
+        disableUserViews(ekr_pray_ET, ekr_pu_ET, ekr_work_ET, ekr_dhikr_ET, ekr_qu_ET);
+        disableUserViews(sa_pray_ET, sa_pu_ET, sa_work_ET, sa_dhikr_ET, sa_qu_ET);
+        disableUserViews(ab_pray_ET, ab_pu_ET, ab_work_ET, ab_dhikr_ET, ab_qu_ET);
     }
 
     //___________________________________________________________________//
@@ -248,6 +271,23 @@ public class HomeFragment extends Fragment {
 
 
     //___________________________________________________________________//
+
+    //Fire base related helper methods
+
+    private void attachDataBaseReadListener(String USER) {
+        mUsersDatabaseReference.child("Users").child(USER).child(getMonth())
+                .child(USER + "_" + date).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                User user = snapshot.getValue(User.class);
+                userAdapter(user);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        });
+    }
 
     private void updateUser(String USER, EditText usrPrET, EditText usrPuET, EditText usrWoET, EditText usrDhiET, EditText usrQuEt, String usrTot) {
         checkViews(usrPrET, usrPuET, usrWoET, usrDhiET, usrQuEt);
@@ -265,8 +305,32 @@ public class HomeFragment extends Fragment {
 
         String usrScore = getUserScore(usrPr, usrPu, usrWo, usrDhikr, usrQu);
 
+
         User user = new User(USER, usrPr, usrPu, usrWo, usrDhikr, usrQu, usrScore, usrTot, date);
-        mUsersDatabaseReference.child(USER + "_" + date).setValue(user);
+        mUsersDatabaseReference.child("Users").child(USER).child(getMonth()).child(USER + "_" + date).setValue(user);
+    }
+
+    private void addUserOnNewDayUTL(String USER, String usrTot) {
+        User user = new User(USER, "0", "0", "0", "0", "0", "0", usrTot, date);
+        mUsersDatabaseReference.child("Users").child(USER).child(getMonth()).child(USER + "_" + date).setValue(user);
+    }
+
+    private void isNewDayUTL(final String USER, String lastDayLoggedIn) {
+        String lastMonth = parseMonth(lastDayLoggedIn);
+        mUsersDatabaseReference.child("Users").child(USER)
+                .child(lastMonth).child(USER + "_" + lastDayLoggedIn).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                User user = snapshot.getValue(User.class);
+                String userTotal
+                        = String.valueOf(Integer.parseInt(user.getTotalScore()) + Integer.parseInt(user.getScore()));
+                addUserOnNewDayUTL(USER, userTotal);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        });
     }
 
     private void userAdapterUTL(User user, EditText usr_pr_E, EditText usr_pu_E, EditText usr_wo_E, EditText usr_dh_E, EditText usr_qu_E, TextView usr_sco_T, TextView usr_tot_T) {
@@ -280,59 +344,6 @@ public class HomeFragment extends Fragment {
 
         if (checkName(mUsername).equals(user.getUserName()))
             enableUserViews(usr_pr_E, usr_pu_E, usr_wo_E, usr_dh_E, usr_qu_E);
-    }
-
-    private void isNewDay
-            (final String USER, final EditText usrPrET, final EditText usrPuET, final EditText usrWoET, final EditText usrDhiET, final EditText usrQuEt, final TextView usrScT) {
-        mUsersDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (!(snapshot.hasChild(USER + "_" + date))) {
-                    cleanUser(usrPrET, usrPuET, usrWoET, usrDhiET, usrQuEt, usrScT);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-    }
-
-    private void attachDataBaseReadListener() {
-        if (mChildEventListener == null) {
-            mChildEventListener = new ChildEventListener() {
-                @Override
-                public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                    User user = snapshot.getValue(User.class);
-                    userAdapter(user);
-                }
-
-                @Override
-                public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                    User user = snapshot.getValue(User.class);
-                    userAdapter(user);
-                }
-
-                @Override
-                public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-                }
-
-                @Override
-                public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                }
-            };
-            mUsersDatabaseReference.addChildEventListener(mChildEventListener);
-        }
-    }
-
-    private void onSignedInInitialized(String userName) {
-        mUsername = userName;
-        attachDataBaseReadListener();
     }
 
     private void detachDataBaseReadListener() {
@@ -372,6 +383,9 @@ public class HomeFragment extends Fragment {
 
 
     //___________________________________________________________________//
+
+    //Non-related fire base helper methods
+
     private String getUserScore(String userPray, String userPushUps, String userWork, String userDhikr, String userQu) {
         int user_today_score
                 = gamification(Integer.parseInt(userPray), Integer.parseInt(userPushUps), Integer.parseInt(userWork), Integer.parseInt(userDhikr), Integer.parseInt(userQu));
@@ -422,15 +436,6 @@ public class HomeFragment extends Fragment {
             view.setText("0");
     }
 
-    private void cleanUser(EditText usrPrET, EditText usrPuET, EditText usrWoET, EditText usrDhiET, EditText usrQuEt, TextView usrScT) {
-        usrPrET.setText("0");
-        usrPuET.setText("0");
-        usrWoET.setText("0");
-        usrDhiET.setText("0");
-        usrQuEt.setText("0");
-        usrScT.setText("0");
-    }
-
     private void enableUserViews(EditText usr_pr_e, EditText usr_pu_e, EditText usr_wo_e, EditText usr_dh_e, EditText usr_qu_e) {
         enableUserView(usr_pr_e);
         enableUserView(usr_pu_e);
@@ -458,43 +463,20 @@ public class HomeFragment extends Fragment {
     private String getDate() {
         Instant now = Instant.now();
         String date_nr = now.toString();
-        return date_nr.substring(0, 4) + "_" + date_nr.substring(5, 7) + "_" + date_nr.substring(8, 10);
+        return date_nr.substring(0, 4) + "-" + Integer.parseInt(date_nr.substring(5, 7)) + "-" + Integer.parseInt(date_nr.substring(8, 10));
     }
 
-    private String getYesterdayDate(int n) {
+    private String getMonth() {
         Instant now = Instant.now();
-        String yesterday_nr = now.minus(n, ChronoUnit.DAYS).toString();
-        return yesterday_nr.substring(0, 4) + "_" + yesterday_nr.substring(5, 7) + "_" + yesterday_nr.substring(8, 10);
+        String date_nr = now.toString();
+        String year = date_nr.substring(0, 4);
+        return year + "-" + Integer.parseInt(date_nr.substring(5, 7));
     }
 
-    private void switchToUseDataBinding() {
-        ekr_pray_ET = tableLayout.findViewById(R.id.ekr_pr);
-        ekr_pu_ET = tableLayout.findViewById(R.id.ekr_pu);
-        ekr_work_ET = tableLayout.findViewById(R.id.ekr_wo);
-        ekr_dhikr_ET = tableLayout.findViewById(R.id.ekr_dhikr);
-        ekr_qu_ET = tableLayout.findViewById(R.id.ekr_qu);
-        ekr_score_TV = tableLayout.findViewById(R.id.elkrrai_score);
-        ekr_total_TV = tableLayout.findViewById(R.id.elkrrai_total_score);
-
-        sa_pray_ET = tableLayout.findViewById(R.id.sa_pr);
-        sa_pu_ET = tableLayout.findViewById(R.id.sa_pu);
-        sa_work_ET = tableLayout.findViewById(R.id.sa_wo);
-        sa_dhikr_ET = tableLayout.findViewById(R.id.sa_dhikr);
-        sa_qu_ET = tableLayout.findViewById(R.id.sa_qu);
-        sa_score_TV = tableLayout.findViewById(R.id.saif_score);
-        sa_total_TV = tableLayout.findViewById(R.id.saif_total_score);
-
-        ab_pray_ET = tableLayout.findViewById(R.id.ab_pr);
-        ab_pu_ET = tableLayout.findViewById(R.id.ab_pu);
-        ab_work_ET = tableLayout.findViewById(R.id.ab_wo);
-        ab_dhikr_ET = tableLayout.findViewById(R.id.ab_dhikr);
-        ab_qu_ET = tableLayout.findViewById(R.id.ab_qu);
-        ab_score_TV = tableLayout.findViewById(R.id.abdo_score);
-        ab_total_TV = tableLayout.findViewById(R.id.abdo_total_score);
-
-
-        disableUserViews(ekr_pray_ET, ekr_pu_ET, ekr_work_ET, ekr_dhikr_ET, ekr_qu_ET);
-        disableUserViews(sa_pray_ET, sa_pu_ET, sa_work_ET, sa_dhikr_ET, sa_qu_ET);
-        disableUserViews(ab_pray_ET, ab_pu_ET, ab_work_ET, ab_dhikr_ET, ab_qu_ET);
+    private String parseMonth(String date) {
+        String year = date.substring(0, 4);
+        if (date.charAt(6) == '-')
+            return year + "-" + date.charAt(5);
+        else return year + "-" + date.substring(5, 7);
     }
 }

@@ -9,12 +9,13 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.List;
 
 import static android.content.ContentValues.TAG;
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserHolder> {
-    private List<User> users ;
+    private List<User> users;
 
 //    public UserAdapter(List<User> users) {
 //        this.users = users;
@@ -71,6 +72,24 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserHolder> {
             score = itemView.findViewById(R.id.scoreTV);
             totalScore = itemView.findViewById(R.id.totalScoreTV);
             date = itemView.findViewById(R.id.date);
+
+            userName.setVisibility(View.GONE);
+            totalScore.setVisibility(View.GONE);
+            date.setVisibility(View.VISIBLE);
+
+            disableUserViews(pray, pushUps, work, dhikr, quran);
+        }
+
+        private void disableUserViews(EditText usr_pr_e, EditText usr_pu_e, EditText usr_wo_e, EditText usr_dh_e, EditText usr_qu_e) {
+            disableUserView(usr_pr_e);
+            disableUserView(usr_pu_e);
+            disableUserView(usr_wo_e);
+            disableUserView(usr_dh_e);
+            disableUserView(usr_qu_e);
+        }
+
+        private void disableUserView(EditText usr_e) {
+            usr_e.setEnabled(false);
         }
     }
 }

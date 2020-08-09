@@ -15,7 +15,8 @@
             style="@style/row_element"
             android:background="#f1f1f1"
             android:text="@string/name"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:visibility="gone" />
 
         <TextView
             style="@style/row_element"
@@ -57,14 +58,14 @@
             style="@style/row_element"
             android:background="#f1f1f1"
             android:text="@string/total"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:visibility="gone" />
 
         <TextView
             style="@style/row_element"
             android:background="#f1f1f1"
             android:text="@string/date"
-            android:textStyle="bold"
-            android:visibility="gone" />
+            android:textStyle="bold" />
 
     </LinearLayout>
 
@@ -74,14 +75,6 @@
         android:layout_height="match_parent"
         android:paddingTop="48dp"
         tools:listitem="@layout/user_item" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/show_history_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="32dp"
-        android:src="@drawable/ic_search" />
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
