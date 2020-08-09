@@ -2,16 +2,15 @@ package com.example.bottomnavigationview;
 
 import android.os.Bundle;
 
+import android.text.InputFilter;
 import android.text.InputType;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,24 +20,16 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.firebase.ui.auth.AuthUI;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 
@@ -64,6 +55,25 @@ public class HistoryFragment extends Fragment {
 
     List<User> usersHistoryList;
 
+    ValueEventListener mValueEventListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot snapshot) {
+            usersHistoryList.clear();
+            if (snapshot.exists()) {
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                    User user = dataSnapshot.getValue(User.class);
+                    usersHistoryList.add(user);
+                }
+                mAdapter.notifyDataSetChanged();
+            }else Toast.makeText(getContext(), "Input does not exist", Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError error) {
+
+        }
+    };
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -84,7 +94,7 @@ public class HistoryFragment extends Fragment {
 
         mFireBaseDatabase = FirebaseDatabase.getInstance();
         mFirebaseAuth = FirebaseAuth.getInstance();
-        mUsersDatabaseReference = mFireBaseDatabase.getReference();
+
 
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -93,13 +103,13 @@ public class HistoryFragment extends Fragment {
                 if (user != null) {
                     // User is signed in
                     mUsername = checkName(user.getDisplayName());
+                    searchByMonth(parseMonth(getDate()));
                 }
             }
         };
 
         return v;
     }
-
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -120,22 +130,9 @@ public class HistoryFragment extends Fragment {
             mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
     }
 
-    public void attachDataBaseReadListener(final String date) {
+    public void searchByDay(final String date) {
         final String PATH = mUsername + "_" + date;
-
-//        Query query = mUsersDatabaseReference.child(PATH).orderByChild("date").equalTo(date);
-//        query.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                usersHistoryList.add(snapshot.getValue(User.class));
-//                mAdapter.notifyDataSetChanged();
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//            }
-//        });
-
+        mUsersDatabaseReference = mFireBaseDatabase.getReference().child("Users").child(mUsername).child(parseMonth(date));
         mUsersDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -163,17 +160,25 @@ public class HistoryFragment extends Fragment {
 
     }
 
+    public void searchByMonth(final String date) {
+        mUsersDatabaseReference = mFireBaseDatabase.getReference().child("Users").child(mUsername).child(date);
+        mUsersDatabaseReference.addListenerForSingleValueEvent(mValueEventListener);
+    }
+
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         menu.clear();
         inflater.inflate(R.menu.search_menu, menu);
         MenuItem item = menu.findItem(R.id.action_search);
 
         final SearchView searchView = new SearchView(((MainActivity) getContext()).getSupportActionBar().getThemedContext());
-//        searchView.setImeOptions(EditorInfo.IME_ACTION_DONE);
         searchView.setInputType(InputType.TYPE_CLASS_DATETIME);
         searchView.setQueryHint("Year-Mon-Day OR Year-Mon");
+
+        //set max length of searchView to 10 digits
+        TextView et = searchView.findViewById(R.id.search_src_text);
+        et.setFilters(new InputFilter[]{new InputFilter.LengthFilter(10)});
 
         item.setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW | MenuItem.SHOW_AS_ACTION_IF_ROOM);
         item.setActionView(searchView);
@@ -181,7 +186,10 @@ public class HistoryFragment extends Fragment {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 query = query.trim();
-                attachDataBaseReadListener(query);
+                if (query.length() > 7)
+                    searchByDay(query);
+                else searchByMonth(query);
+
                 searchView.clearFocus();
                 return false;
             }
@@ -194,7 +202,6 @@ public class HistoryFragment extends Fragment {
         });
     }
 
-
     private String checkName(String userName) {
         userName = userName.toLowerCase();
         if (userName.contains("krrai"))
@@ -204,5 +211,18 @@ public class HistoryFragment extends Fragment {
         if (userName.contains("abd"))
             return ABDO;
         return userName;
+    }
+
+    private String parseMonth(String date) {
+        String year = date.substring(0, 4);
+        if (date.charAt(6) == '-')
+            return year + "-" + date.charAt(5);
+        else return year + "-" + date.substring(5, 7);
+    }
+
+    private String getDate() {
+        Instant now = Instant.now();
+        String date_nr = now.toString();
+        return date_nr.substring(0, 4) + "-" + Integer.parseInt(date_nr.substring(5, 7)) + "-" + Integer.parseInt(date_nr.substring(8, 10));
     }
 }

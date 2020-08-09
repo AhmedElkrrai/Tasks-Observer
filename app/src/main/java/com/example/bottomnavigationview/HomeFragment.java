@@ -67,7 +67,6 @@ public class HomeFragment extends Fragment {
     //firebase stuff
     private FirebaseDatabase mFireBaseDatabase;
     private DatabaseReference mUsersDatabaseReference;
-    private DatabaseReference mDaysSavedDatabaseReference;
     private DatabaseReference mUserLastDayLogInDatabaseReference;
 
     private ChildEventListener mChildEventListener;
@@ -86,7 +85,6 @@ public class HomeFragment extends Fragment {
         mFireBaseDatabase = FirebaseDatabase.getInstance();
         mFirebaseAuth = FirebaseAuth.getInstance();
         mUsersDatabaseReference = mFireBaseDatabase.getReference();
-        mDaysSavedDatabaseReference = mFireBaseDatabase.getReference().child("Days Saved");
         mUserLastDayLogInDatabaseReference = mFireBaseDatabase.getReference().child("LogIn");
 
 
@@ -182,8 +180,6 @@ public class HomeFragment extends Fragment {
                 if (!(today.equals(date))) {
                     mUserLastDayLogInDatabaseReference.child("LastDay").setValue(today);
                     mUserLastDayLogInDatabaseReference.child("Today").setValue(date);
-
-                    mDaysSavedDatabaseReference.child(date).setValue(date);
 
                     String USER;
                     for (int i = 0; i < 3; i++) {
@@ -407,6 +403,26 @@ public class HomeFragment extends Fragment {
         return userPray + userWork + userQu + userPushUps + userDhikr;
     }
 
+    private String getDate() {
+        Instant now = Instant.now();
+        String date_nr = now.toString();
+        return date_nr.substring(0, 4) + "-" + Integer.parseInt(date_nr.substring(5, 7)) + "-" + Integer.parseInt(date_nr.substring(8, 10));
+    }
+
+    private String getMonth() {
+        Instant now = Instant.now();
+        String date_nr = now.toString();
+        String year = date_nr.substring(0, 4);
+        return year + "-" + Integer.parseInt(date_nr.substring(5, 7));
+    }
+
+    private String parseMonth(String date) {
+        String year = date.substring(0, 4);
+        if (date.charAt(6) == '-')
+            return year + "-" + date.charAt(5);
+        else return year + "-" + date.substring(5, 7);
+    }
+
     private String checkName(String userName) {
         userName = userName.toLowerCase();
         if (userName.contains("krrai"))
@@ -442,26 +458,6 @@ public class HomeFragment extends Fragment {
         } else usrEntry = String.valueOf(Integer.parseInt(usrEntry));
 
         return usrEntry;
-    }
-
-    private String getDate() {
-        Instant now = Instant.now();
-        String date_nr = now.toString();
-        return date_nr.substring(0, 4) + "-" + Integer.parseInt(date_nr.substring(5, 7)) + "-" + Integer.parseInt(date_nr.substring(8, 10));
-    }
-
-    private String getMonth() {
-        Instant now = Instant.now();
-        String date_nr = now.toString();
-        String year = date_nr.substring(0, 4);
-        return year + "-" + Integer.parseInt(date_nr.substring(5, 7));
-    }
-
-    private String parseMonth(String date) {
-        String year = date.substring(0, 4);
-        if (date.charAt(6) == '-')
-            return year + "-" + date.charAt(5);
-        else return year + "-" + date.substring(5, 7);
     }
 
     private void enableUserViews(EditText usr_pr_e, EditText usr_pu_e, EditText usr_wo_e, EditText usr_dh_e, EditText usr_qu_e) {
