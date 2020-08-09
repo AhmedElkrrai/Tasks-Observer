@@ -290,23 +290,11 @@ public class HomeFragment extends Fragment {
     }
 
     private void updateUser(String USER, EditText usrPrET, EditText usrPuET, EditText usrWoET, EditText usrDhiET, EditText usrQuEt, String usrTot) {
-        checkViews(usrPrET, usrPuET, usrWoET, usrDhiET, usrQuEt);
+        String[] views = checkViews(usrPrET, 15, usrPuET, 1000, usrWoET, 9, usrDhiET, 4000, usrQuEt, 40);
 
-        String usrPr = usrPrET.getText().toString();
-        if (Integer.parseInt(usrPr) > 15) {
-            String maxPr = "15";
-            usrPrET.setText(maxPr);
-            usrPr = maxPr;
-        }
-        String usrPu = usrPuET.getText().toString();
-        String usrWo = usrWoET.getText().toString();
-        String usrDhikr = usrDhiET.getText().toString();
-        String usrQu = usrQuEt.getText().toString();
+        String usrScore = getUserScore(views[0], views[1], views[2], views[3], views[4]);
 
-        String usrScore = getUserScore(usrPr, usrPu, usrWo, usrDhikr, usrQu);
-
-
-        User user = new User(USER, usrPr, usrPu, usrWo, usrDhikr, usrQu, usrScore, usrTot, date);
+        User user = new User(USER, views[0], views[1], views[2], views[3], views[4], usrScore, usrTot, date);
         mUsersDatabaseReference.child("Users").child(USER).child(getMonth()).child(USER + "_" + date).setValue(user);
     }
 
@@ -423,17 +411,30 @@ public class HomeFragment extends Fragment {
         return userName;
     }
 
-    private void checkViews(EditText usrPr, EditText usrPu, EditText usrWo, EditText usrDhikr, EditText usrQu) {
-        checkView(usrPr);
-        checkView(usrPu);
-        checkView(usrWo);
-        checkView(usrDhikr);
-        checkView(usrQu);
+    private String[] checkViews(EditText usrPr, int maxPr, EditText usrPu, int maxPu, EditText usrWo, int maxWo, EditText usrDhikr, int maxDhikr, EditText usrQu, int maxQu) {
+        int numberOfViews = 5;
+        String[] views = new String[numberOfViews];
+        views[0] = checkView(usrPr, maxPr);
+        views[1] = checkView(usrPu, maxPu);
+        views[2] = checkView(usrWo, maxWo);
+        views[3] = checkView(usrDhikr, maxDhikr);
+        views[4] = checkView(usrQu, maxQu);
+        return views;
     }
 
-    private void checkView(EditText view) {
+    private String checkView(EditText view, int viewMax) {
         if (view.getText().toString().equals(""))
             view.setText("0");
+
+        String usrEntry = view.getText().toString();
+
+        if (Integer.parseInt(usrEntry) > viewMax) {
+            String maxEntry = String.valueOf(viewMax);
+            view.setText(maxEntry);
+            usrEntry = maxEntry;
+        } else usrEntry = String.valueOf(Integer.parseInt(usrEntry));
+
+        return usrEntry;
     }
 
     private void enableUserViews(EditText usr_pr_e, EditText usr_pu_e, EditText usr_wo_e, EditText usr_dh_e, EditText usr_qu_e) {
