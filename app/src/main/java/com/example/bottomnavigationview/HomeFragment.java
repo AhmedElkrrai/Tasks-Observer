@@ -88,6 +88,9 @@ public class HomeFragment extends Fragment {
         mUserLastDayLogInDatabaseReference = mFireBaseDatabase.getReference().child("LogIn");
 
 
+        date = "2020-08-15";
+//        date = getDate();
+
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -109,8 +112,7 @@ public class HomeFragment extends Fragment {
             }
         };
 
-        date = "2020-8-16";
-//        date = getDate();
+
 
         findAllViews();
 
@@ -258,24 +260,35 @@ public class HomeFragment extends Fragment {
         disableUserViews(ab_pray_ET, ab_pu_ET, ab_work_ET, ab_dhikr_ET, ab_qu_ET);
     }
 
-    //___________________________________________________________________//
+    private String checkName(String userName) {
+        userName = userName.toLowerCase();
+        if (userName.contains("krrai"))
+            return ELKRRAI;
+        if (userName.contains("saif"))
+            return SAIF;
+        if (userName.contains("abd"))
+            return ABDO;
+        return userName;
+    }
 
-
-    //___________________________________________________________________//
-
-
-    //___________________________________________________________________//
-
-
-    //___________________________________________________________________//
-
-
-    //___________________________________________________________________//
-
-
-    //___________________________________________________________________//
-
-    //Fire base related helper methods
+//    ___________________________________________________________________//
+//
+//
+//            ___________________________________________________________________//
+//
+//
+//    ___________________________________________________________________//
+//
+//
+//            ___________________________________________________________________//
+//
+//
+//    ___________________________________________________________________//
+//
+//
+//            ___________________________________________________________________//
+//
+//    Fire base related helper methods
 
     private void attachDataBaseReadListener(String USER) {
         mUsersDatabaseReference.child("Users").child(USER).child(getMonth())
@@ -283,7 +296,8 @@ public class HomeFragment extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 User user = snapshot.getValue(User.class);
-                userAdapter(user);
+                if (user != null)
+                    userAdapter(user);
             }
 
             @Override
@@ -307,7 +321,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void isNewDayUTL(final String USER, String lastDayLoggedIn) {
-        String lastMonth = parseMonth(lastDayLoggedIn);
+        String lastMonth = lastDayLoggedIn.substring(0, 7);
         mUsersDatabaseReference.child("Users").child(USER)
                 .child(lastMonth).child(USER + "_" + lastDayLoggedIn).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -406,32 +420,14 @@ public class HomeFragment extends Fragment {
     private String getDate() {
         Instant now = Instant.now();
         String date_nr = now.toString();
-        return date_nr.substring(0, 4) + "-" + Integer.parseInt(date_nr.substring(5, 7)) + "-" + Integer.parseInt(date_nr.substring(8, 10));
+        return date_nr.substring(0, 4) + "-" + date_nr.substring(5, 7) + "-" + date_nr.substring(8, 10);
     }
 
     private String getMonth() {
         Instant now = Instant.now();
         String date_nr = now.toString();
         String year = date_nr.substring(0, 4);
-        return year + "-" + Integer.parseInt(date_nr.substring(5, 7));
-    }
-
-    private String parseMonth(String date) {
-        String year = date.substring(0, 4);
-        if (date.charAt(6) == '-')
-            return year + "-" + date.charAt(5);
-        else return year + "-" + date.substring(5, 7);
-    }
-
-    private String checkName(String userName) {
-        userName = userName.toLowerCase();
-        if (userName.contains("krrai"))
-            return ELKRRAI;
-        if (userName.contains("saif"))
-            return SAIF;
-        if (userName.contains("abd"))
-            return ABDO;
-        return userName;
+        return year + "-" + date_nr.substring(5, 7);
     }
 
     private String[] checkViews(EditText usrPr, int maxPr, EditText usrPu, int maxPu, EditText usrWo, int maxWo, EditText usrDhikr, int maxDhikr, EditText usrQu, int maxQu) {

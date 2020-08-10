@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import android.text.InputFilter;
 import android.text.InputType;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -65,7 +66,7 @@ public class HistoryFragment extends Fragment {
                     usersHistoryList.add(user);
                 }
                 mAdapter.notifyDataSetChanged();
-            }else Toast.makeText(getContext(), "Input does not exist", Toast.LENGTH_SHORT).show();
+            } else Toast.makeText(getContext(), "Input does not exist", Toast.LENGTH_SHORT).show();
         }
 
         @Override
@@ -103,7 +104,7 @@ public class HistoryFragment extends Fragment {
                 if (user != null) {
                     // User is signed in
                     mUsername = checkName(user.getDisplayName());
-                    searchByMonth(parseMonth(getDate()));
+                    searchByMonth(getMonth());
                 }
             }
         };
@@ -132,7 +133,7 @@ public class HistoryFragment extends Fragment {
 
     public void searchByDay(final String date) {
         final String PATH = mUsername + "_" + date;
-        mUsersDatabaseReference = mFireBaseDatabase.getReference().child("Users").child(mUsername).child(parseMonth(date));
+        mUsersDatabaseReference = mFireBaseDatabase.getReference().child("Users").child(mUsername).child(date.substring(0, 7));
         mUsersDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -140,6 +141,7 @@ public class HistoryFragment extends Fragment {
                     mUsersDatabaseReference.child(PATH).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            usersHistoryList.clear();
                             usersHistoryList.add(snapshot.getValue(User.class));
                             mAdapter.notifyDataSetChanged();
                         }
@@ -186,9 +188,18 @@ public class HistoryFragment extends Fragment {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 query = query.trim();
-                if (query.length() > 7)
-                    searchByDay(query);
-                else searchByMonth(query);
+
+                if (query.length() > 7) {
+                    query = parseDate(query);
+                    if (query.equals("invalid input"))
+                        Toast.makeText(getContext(), "Invalid Input", Toast.LENGTH_SHORT).show();
+                    else searchByDay(query);
+                } else {
+                    query = parseMonth(query);
+                    if (query.equals("invalid input"))
+                        Toast.makeText(getContext(), "Invalid Input", Toast.LENGTH_SHORT).show();
+                    else searchByMonth(query);
+                }
 
                 searchView.clearFocus();
                 return false;
@@ -196,7 +207,6 @@ public class HistoryFragment extends Fragment {
 
             @Override
             public boolean onQueryTextChange(String query) {
-                //TODO: perform filtering
                 return false;
             }
         });
@@ -213,16 +223,74 @@ public class HistoryFragment extends Fragment {
         return userName;
     }
 
-    private String parseMonth(String date) {
-        String year = date.substring(0, 4);
-        if (date.charAt(6) == '-')
-            return year + "-" + date.charAt(5);
-        else return year + "-" + date.substring(5, 7);
-    }
-
-    private String getDate() {
+    private String getMonth() {
         Instant now = Instant.now();
         String date_nr = now.toString();
-        return date_nr.substring(0, 4) + "-" + Integer.parseInt(date_nr.substring(5, 7)) + "-" + Integer.parseInt(date_nr.substring(8, 10));
+        String year = date_nr.substring(0, 4);
+        return year + "-" + date_nr.substring(5, 7);
+    }
+
+    private String parseDate(String date) {
+        if (date.length() == 8 && (date.charAt(7) == '-' || date.charAt(7) == '/'))
+            return "invalid input";
+
+        String year = date.substring(0, 4);
+
+        if (Integer.parseInt(year) < 2020 || Integer.parseInt(year) > 2030)
+            return "invalid input";
+
+        if (date.charAt(4) == '-' || date.charAt(4) == '/')
+            year += '-';
+        else return "invalid input";
+
+        if (date.charAt(6) == '-' || date.charAt(6) == '/') {
+            int month = Integer.parseInt(String.valueOf(date.charAt(5)));
+            year += "0" + month + "-";
+
+            int lastChar = date.length();
+            String day = date.substring(7, lastChar);
+
+            if (Integer.parseInt(day) <= 31)
+                if (Integer.parseInt(day) > 9)
+                    return year += day;
+                else return year += "0" + day;
+            else return "invalid input";
+
+        } else if (date.charAt(7) == '-' || date.charAt(7) == '/') {
+            String month = date.substring(5, 7);
+            if (Integer.parseInt(month) <= 12) {
+                year += month + "-";
+
+                int lastChar = date.length();
+                String day = date.substring(8, lastChar);
+
+                if (Integer.parseInt(day) <= 31)
+                    if (Integer.parseInt(day) > 9)
+                        return year += day;
+                    else return year += "0" + day;
+                else return "invalid input";
+            } else return "invalid input";
+        }
+
+        return year;
+    }
+
+    private String parseMonth(String date) {
+        String year = date.substring(0, 4);
+
+        if (Integer.parseInt(year) < 2020 || Integer.parseInt(year) > 2030)
+            return "invalid input";
+
+        if (date.charAt(4) == '-' || date.charAt(4) == '/')
+            year += '-';
+        else return "invalid input";
+
+        if (date.length() == 6)
+            return year += "0" + date.charAt(5);
+        else {
+            if (Integer.parseInt(date.substring(5, 7)) > 12)
+                return "invalid input";
+            else return year += date.substring(5, 7);
+        }
     }
 }
