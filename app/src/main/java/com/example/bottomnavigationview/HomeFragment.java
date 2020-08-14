@@ -88,8 +88,8 @@ public class HomeFragment extends Fragment {
         mUserLastDayLogInDatabaseReference = mFireBaseDatabase.getReference().child("LogIn");
 
 
-        date = "2020-08-15";
-//        date = getDate();
+//        date = "2020-08-15";
+        date = getDate();
 
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -111,8 +111,6 @@ public class HomeFragment extends Fragment {
                 }
             }
         };
-
-
 
         findAllViews();
 
