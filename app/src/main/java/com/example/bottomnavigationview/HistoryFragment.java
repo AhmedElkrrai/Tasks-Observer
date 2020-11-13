@@ -30,6 +30,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -224,8 +225,7 @@ public class HistoryFragment extends Fragment {
     }
 
     private String getMonth() {
-        Instant now = Instant.now();
-        String date_nr = now.toString();
+        String date_nr = ZonedDateTime.now().toString();
         String year = date_nr.substring(0, 4);
         return year + "-" + date_nr.substring(5, 7);
     }

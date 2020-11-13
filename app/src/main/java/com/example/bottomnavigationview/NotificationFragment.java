@@ -1,7 +1,5 @@
 package com.example.bottomnavigationview;
 
-import android.content.Context;
-import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,16 +9,9 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-
 import com.android.volley.AuthFailureError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
@@ -28,18 +19,10 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.messaging.FirebaseMessaging;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.FileDescriptor;
-import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
-import static com.firebase.ui.auth.AuthUI.getApplicationContext;
 
 public class NotificationFragment extends Fragment implements AdapterView.OnItemSelectedListener {
     final private String FCM_API = "https://fcm.googleapis.com/fcm/send";
@@ -201,6 +184,5 @@ public class NotificationFragment extends Fragment implements AdapterView.OnItem
 
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
-
     }
 }

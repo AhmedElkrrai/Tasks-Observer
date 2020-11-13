@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">Tasks Observer</string>
+    <string name="home_fragment">Home Fragment</string>
+    <string name="favorites_fragment">Favorites Fragment</string>
+    <string name="search_fragment">Search Fragment</string>
+    <string name="name">Name</string>
+    <string name="pray">Pray</string>
+    <string name="total_score">Total Score</string>
+    <string name="push_ups">Push-Ups</string>
+    <string name="_0">0</string>
+    <string name="ok">OK</string>
+    <string name="save_day">Save Day</string>
+    <string name="date">Date</string>
+    <string name="dhikr">Dhikr</string>
+    <string name="quran">Quran</string>
+    <string name="push">Push</string>
+    <string name="work">Work</string>
+    <string name="score">Score</string>
+    <string name="total">Total</string>
+    <string name="message">Message</string>
+    <string name="username">Username</string>
+    <string name="user_name">User Name</string>
+    <string name="notification">Notification</string>
+
+    <string-array name="users">
+        <item>Elkrrai</item>
+        <item>Saif</item>
+    </string-array>
+</resources>

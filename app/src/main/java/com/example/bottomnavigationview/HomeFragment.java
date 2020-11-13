@@ -1,6 +1,7 @@
 package com.example.bottomnavigationview;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +25,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 
 public class HomeFragment extends Fragment {
@@ -416,14 +418,12 @@ public class HomeFragment extends Fragment {
     }
 
     private String getDate() {
-        Instant now = Instant.now();
-        String date_nr = now.toString();
+        String date_nr = ZonedDateTime.now().toString();
         return date_nr.substring(0, 4) + "-" + date_nr.substring(5, 7) + "-" + date_nr.substring(8, 10);
     }
 
     private String getMonth() {
-        Instant now = Instant.now();
-        String date_nr = now.toString();
+        String date_nr = ZonedDateTime.now().toString();
         String year = date_nr.substring(0, 4);
         return year + "-" + date_nr.substring(5, 7);
     }
